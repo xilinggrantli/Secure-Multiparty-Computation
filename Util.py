@@ -41,3 +41,6 @@ class Util:
         n_a = random.randint(0,n)
         n_b = n - n_a % prime
         return n_a, n_b
+    
+    def server_address_builder(self):
+        return (('127.0.0.1',8080))
