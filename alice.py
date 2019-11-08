@@ -45,20 +45,18 @@ if desired_operation == 'a':
         if data.split(':')[0] == 'sub_addition':
             bob_sub_addition = int(data.split(':')[1])
             print('bob_sub_addition:'+str(bob_sub_addition))
-
-        if bob_sub_addition != -1:
             addition = sub_addition + bob_sub_addition
-            a_a, a_b = util.two_party_secret_share(addition,prime)
-            msg = 'addition share:' + str(a_b)
-            print(msg)
+            a_a, a_b = util.two_party_secret_share(addition,util.closest_large_prime_finder(addition))
+            print('addition share: ' + str(a_a) + ',' + str(a_b))
+            msg = 'addition_share:' + str(a_b)
             bob_client.close()
             bob_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             bob_client.connect(('127.0.0.1',8082))
             bob_client.send(msg.encode())
 
-        if data.split(':')[0] == 'addition share':
+        if data.split(':')[0] == 'addition_share':
             bob_addition = int(data.split(':')[1])
-            print('addition share: ' + str(bob_addition))
+            print('addition share bob sent: ' + str(bob_addition))
             break
 
 if desired_operation == 'm':
@@ -101,7 +99,9 @@ if desired_operation == 'm':
             w = w_a + w_b
             
             product = w + u * e + d * v + d * e
-            msg = 'product:' + str(product)
+            a_a, a_b = util.two_party_secret_share(product,util.closest_large_prime_finder(product))
+            print('multiplication share: ' + str(a_a) + ',' + str(a_b))
+            msg = 'product:' + str(a_b)
 
             bob_client.close()
             bob_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -110,7 +110,7 @@ if desired_operation == 'm':
 
         if data.split(':')[0] == 'product':
             bob_product = data.split(':')[1]
-            print('multiplication: ' + str(bob_product))
+            print('multiplication share of bob sent: ' + str(bob_product))
             break
 
 trusted_initializer.close()

@@ -45,20 +45,18 @@ if desired_operation == 'a':
         if data.split(':')[0] == 'sub_addition':
             alice_sub_addition = int(data.split(':')[1])
             print('alice_sub_addition:'+str(alice_sub_addition))
-        
-        if alice_sub_addition != -1:
             addition = sub_addition + alice_sub_addition
-            b_a, b_b = util.two_party_secret_share(addition,prime)
-            msg = 'addition share:' + str(b_a)
-            print(msg)
+            b_a, b_b = util.two_party_secret_share(addition,util.closest_large_prime_finder(addition))
+            print('addition share: ' + str(b_a) + ',' + str(b_b))
+            msg = 'addition_share:' + str(b_a)
             alice_client.close()
             alice_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             alice_client.connect(('127.0.0.1',8081))
             alice_client.send(msg.encode())
 
-        if data.split(':')[0] == 'addition share':
+        if data.split(':')[0] == 'addition_share':
             alice_addition = int(data.split(':')[1])
-            print('addition share: ' + str(alice_addition))
+            print('addition share of alice sent: ' + str(alice_addition))
             break
 
 if desired_operation == 'm':
@@ -68,7 +66,7 @@ if desired_operation == 'm':
     u_b = int(initialized_share.split(':')[0])
     v_b = int(initialized_share.split(':')[1])
     w_b = int(initialized_share.split(':')[2])
-    y_b = -1
+    x_b = -1
     d_b = -1
     e_b = -1
 
@@ -101,7 +99,9 @@ if desired_operation == 'm':
             w = w_a + w_b
             
             product = w + u * e + d * v + d * e
-            msg = 'product:' + str(product)
+            b_a, b_b = util.two_party_secret_share(product,util.closest_large_prime_finder(product))
+            print('multiplication share: ' + str(b_a) + ',' + str(b_b))
+            msg = 'product:' + str(b_a)
 
             alice_client.close()
             alice_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -110,7 +110,7 @@ if desired_operation == 'm':
 
         if data.split(':')[0] == 'product':
             alice_product = data.split(':')[1]
-            print('multiplication: ' + str(alice_product))
+            print('multiplication share of alice sent: ' + str(alice_product))
             break
 
 trusted_initializer.close()
